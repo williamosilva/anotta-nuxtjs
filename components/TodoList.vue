@@ -1,126 +1,130 @@
 <template>
-  <div class="max-w-4xl mx-auto p-6 bg-gray-50 rounded-lg shadow-sm">
-    <!-- Título -->
-    <div class="mb-8 text-center">
-      <h1 class="text-3xl font-bold text-gray-900">Minhas Tarefas</h1>
-    </div>
+  <div
+    class="max-w-4xl mx-auto p-8 bg-gray-50 min-h-screen overflow-hidden rounded-2xl shadow-sm"
+  >
+    <h1 class="text-4xl font-bold mb-8 text-gray-800">My Tasks</h1>
 
-    <!-- Filtros -->
-    <div class="flex flex-wrap gap-4 mb-6">
+    <div class="flex gap-4 mb-8">
       <select
         v-model="statusFilter"
-        class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        class="bg-white border-none rounded-full px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
       >
-        <option value="">Todos os status</option>
-        <option value="pending">Pendente</option>
-        <option value="in-progress">Em Andamento</option>
-        <option value="completed">Concluído</option>
+        <option value="">All statuses</option>
+        <option value="pending">Pending</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
       </select>
+
       <select
         v-model="sortBy"
-        class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        class="bg-white border-none rounded-full px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
       >
-        <option value="date">Ordenar por Data</option>
-        <option value="title">Ordenar por Título</option>
+        <option value="date">Sort by Date</option>
+        <option value="title">Sort by Title</option>
       </select>
     </div>
 
-    <!-- Lista de Tarefas -->
-    <div class="space-y-6">
+    <TransitionGroup name="list" tag="div" class="space-y-4">
       <div
         v-for="todo in sortedAndFilteredTodos"
         :key="todo.id"
-        class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+        class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300"
       >
-        <!-- Cabeçalho da Tarefa -->
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-800 truncate">
-            {{ todo.title }}
-          </h3>
-          <div class="flex gap-3">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-semibold text-gray-800">{{ todo.title }}</h3>
+          <div class="flex gap-2">
             <button
               @click="editTodo(todo)"
-              class="text-blue-600 hover:text-blue-800 font-medium"
+              class="text-blue-600 hover:text-blue-800 transition-colors duration-300"
             >
-              Editar
+              <EditIcon class="w-5 h-5" />
             </button>
             <button
               @click="deleteTodo(todo.id)"
-              class="text-red-600 hover:text-red-800 font-medium"
+              class="text-red-600 hover:text-red-800 transition-colors duration-300"
             >
-              Excluir
+              <TrashIcon class="w-5 h-5" />
             </button>
             <button
               v-if="todo.status !== 'completed'"
               @click="completeTodo(todo.id)"
-              class="text-green-600 hover:text-green-800 font-medium"
+              class="text-green-600 hover:text-green-800 transition-colors duration-300"
             >
-              Concluir
+              <CheckIcon class="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        <!-- Descrição -->
-        <p class="text-sm text-gray-600 mt-4">
-          {{ todo.description }}
-        </p>
+        <p class="text-gray-600 mb-4">{{ todo.description }}</p>
 
-        <!-- Informações Adicionais -->
-        <div class="mt-4 text-sm text-gray-500">
-          <p>Criado em: {{ formatDate(todo.createdAt) }}</p>
-          <p v-if="todo.completedAt">
-            Concluído em: {{ formatDate(todo.completedAt) }}
-          </p>
+        <div class="flex items-center justify-between text-sm text-gray-500">
+          <div>
+            <p>Created: {{ formatDate(todo.createdAt) }}</p>
+            <p v-if="todo.completedAt">
+              Completed: {{ formatDate(todo.completedAt) }}
+            </p>
+          </div>
           <span
             :class="{
-              'text-yellow-600 font-medium': todo.status === 'pending',
-              'text-blue-600 font-medium': todo.status === 'in-progress',
-              'text-green-600 font-medium': todo.status === 'completed',
+              'bg-yellow-100 text-yellow-800': todo.status === 'pending',
+              'bg-blue-100 text-blue-800': todo.status === 'in-progress',
+              'bg-green-100 text-green-800': todo.status === 'completed',
             }"
+            class="px-3 py-1 rounded-full text-xs font-medium"
           >
-            Status: {{ todo.status }}
+            {{ todo.status }}
           </span>
         </div>
       </div>
-    </div>
+    </TransitionGroup>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, computed } from "vue";
-import { useTodoStore } from "~/composables/useTodoStore";
-import dayjs from "dayjs";
+import { useTodoStore } from "../composables/useTodoStore";
+import { EditIcon, TrashIcon, CheckIcon } from "lucide-vue-next";
 
 const todoStore = useTodoStore();
 const statusFilter = ref("");
-const sortBy = ref<"date" | "title">("date");
+const sortBy = ref("date");
 
 const sortedAndFilteredTodos = computed(() => {
   let filtered = todoStore.filterTodos(statusFilter.value || undefined);
-  return todoStore.sortTodos(sortBy.value);
+  return todoStore.sortTodos(filtered, sortBy.value);
 });
 
-const formatDate = (date: string) => {
-  return dayjs(date).format("DD/MM/YYYY HH:mm");
+const formatDate = (date) => {
+  return new Date(date).toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
-const editTodo = (todo: Todo) => {
-  // Implementar lógica de edição
+const editTodo = (todo) => {
+  // Implement edit logic
 };
 
-const deleteTodo = (id: string) => {
+const deleteTodo = (id) => {
   todoStore.deleteTodo(id);
 };
 
-const completeTodo = (id: string) => {
+const completeTodo = (id) => {
   todoStore.completeTodo(id);
 };
 </script>
 
 <style scoped>
-/* Adiciona uma transição elegante aos botões */
-button:hover {
-  transform: translateY(-1px);
-  transition: transform 0.2s ease, color 0.2s ease;
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>
