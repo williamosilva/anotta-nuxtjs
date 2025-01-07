@@ -34,7 +34,7 @@
         ></textarea>
       </div>
 
-      <div>
+      <div v-if="isEditing">
         <label
           for="status"
           class="block text-sm font-medium text-gray-700 mb-1"
@@ -46,9 +46,9 @@
           v-model="form.status"
           class="block w-full px-4 py-2 rounded-md bg-gray-50 border-transparent focus:border-blue-500 focus:bg-white focus:ring-0 transition-all duration-300"
         >
-          <option value="pending">Pending</option>
-          <option value="in-progress">In Progress</option>
-          <option value="completed">Completed</option>
+          <option value="PENDING">Pending</option>
+          <option value="IN_PROGRESS">In Progress</option>
+          <option value="COMPLETED">Completed</option>
         </select>
       </div>
 
@@ -62,40 +62,70 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from "vue";
+<script setup lang="ts">
+import { ref, computed, watch } from "vue";
+import type { Task } from "~/composables/useTodoStore";
 
-const props = defineProps({
-  todo: {
-    type: Object,
-    default: () => null,
-  },
+interface Props {
+  todo: Task | null;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  todo: null,
 });
 
-const emit = defineEmits(["submit"]);
+const emit = defineEmits<{
+  (e: "submit", data: Partial<Task>): void;
+}>();
 
 const isEditing = computed(() => !!props.todo);
 
 const form = ref({
-  title: props.todo?.title ?? "",
-  description: props.todo?.description ?? "",
-  status: props.todo?.status ?? "pending",
+  title: "",
+  description: "",
+  status: "PENDING" as Task["status"],
 });
 
+// Atualiza o formulário quando a prop todo mudar
+watch(
+  () => props.todo,
+  (newTodo) => {
+    if (newTodo) {
+      form.value = {
+        title: newTodo.title,
+        description: newTodo.description,
+        status: newTodo.status,
+      };
+    } else {
+      form.value = {
+        title: "",
+        description: "",
+        status: "PENDING",
+      };
+    }
+  },
+  { immediate: true }
+);
+
 const handleSubmit = () => {
-  emit("submit", {
-    title: form.value.title,
-    description: form.value.description,
-    status: form.value.status,
-    completedAt:
-      form.value.status === "completed" ? new Date().toISOString() : null,
-  });
+  const submitData = isEditing.value
+    ? {
+        title: form.value.title,
+        description: form.value.description,
+        status: form.value.status,
+      }
+    : {
+        title: form.value.title,
+        description: form.value.description,
+      };
+
+  emit("submit", submitData);
 
   if (!isEditing.value) {
     form.value = {
       title: "",
       description: "",
-      status: "pending",
+      status: "PENDING",
     };
   }
 };

@@ -10,9 +10,9 @@
         class="bg-white border-none rounded-full px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
       >
         <option value="">All statuses</option>
-        <option value="pending">Pending</option>
-        <option value="in-progress">In Progress</option>
-        <option value="completed">Completed</option>
+        <option value="PENDING">Pending</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="COMPLETED">Completed</option>
       </select>
 
       <select
@@ -26,28 +26,28 @@
 
     <TransitionGroup name="list" tag="div" class="space-y-4">
       <div
-        v-for="todo in sortedAndFilteredTodos"
-        :key="todo.id"
+        v-for="task in sortedAndFilteredTasks"
+        :key="task.id"
         class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300"
       >
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xl font-semibold text-gray-800">{{ todo.title }}</h3>
+          <h3 class="text-xl font-semibold text-gray-800">{{ task.title }}</h3>
           <div class="flex gap-2">
             <button
-              @click="editTodo(todo)"
+              @click="$emit('edit-task', task)"
               class="text-blue-600 hover:text-blue-800 transition-colors duration-300"
             >
               <EditIcon class="w-5 h-5" />
             </button>
             <button
-              @click="deleteTodo(todo.id)"
+              @click="$emit('delete-task', task.id)"
               class="text-red-600 hover:text-red-800 transition-colors duration-300"
             >
               <TrashIcon class="w-5 h-5" />
             </button>
             <button
-              v-if="todo.status !== 'completed'"
-              @click="completeTodo(todo.id)"
+              v-if="task.status !== 'COMPLETED'"
+              @click="$emit('update-status', task.id, 'COMPLETED')"
               class="text-green-600 hover:text-green-800 transition-colors duration-300"
             >
               <CheckIcon class="w-5 h-5" />
@@ -55,24 +55,21 @@
           </div>
         </div>
 
-        <p class="text-gray-600 mb-4">{{ todo.description }}</p>
+        <p class="text-gray-600 mb-4">{{ task.description }}</p>
 
         <div class="flex items-center justify-between text-sm text-gray-500">
           <div>
-            <p>Created: {{ formatDate(todo.createdAt) }}</p>
-            <p v-if="todo.completedAt">
-              Completed: {{ formatDate(todo.completedAt) }}
-            </p>
+            <p>Created: {{ formatDate(task.created_at) }}</p>
           </div>
           <span
             :class="{
-              'bg-yellow-100 text-yellow-800': todo.status === 'pending',
-              'bg-blue-100 text-blue-800': todo.status === 'in-progress',
-              'bg-green-100 text-green-800': todo.status === 'completed',
+              'bg-yellow-100 text-yellow-800': task.status === 'PENDING',
+              'bg-blue-100 text-blue-800': task.status === 'IN_PROGRESS',
+              'bg-green-100 text-green-800': task.status === 'COMPLETED',
             }"
-            class="px-3 py-1 rounded-full text-xs font-medium"
+            class="px-3 py-1 rounded-full text-xs font-medium capitalize"
           >
-            {{ todo.status }}
+            {{ formatStatus(task.status) }}
           </span>
         </div>
       </div>
@@ -80,21 +77,29 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from "vue";
-import { useTodoStore } from "../composables/useTodoStore";
+import { useTodoStore, Task } from "../composables/useTodoStore";
 import { EditIcon, TrashIcon, CheckIcon } from "lucide-vue-next";
 
-const todoStore = useTodoStore();
-const statusFilter = ref("");
-const sortBy = ref("date");
+// Props e Emits
+defineEmits<{
+  "edit-task": [task: Task];
+  "delete-task": [id: string];
+  "update-status": [id: string, status: Task["status"]];
+}>();
 
-const sortedAndFilteredTodos = computed(() => {
-  let filtered = todoStore.filterTodos(statusFilter.value || undefined);
-  return todoStore.sortTodos(filtered, sortBy.value);
+const { filterTasks, sortTasks } = useTodoStore();
+
+const statusFilter = ref<Task["status"] | "">("");
+const sortBy = ref<"date" | "title">("date");
+
+const sortedAndFilteredTasks = computed(() => {
+  const filtered = filterTasks(statusFilter.value || undefined);
+  return sortTasks(sortBy.value);
 });
 
-const formatDate = (date) => {
+const formatDate = (date: string) => {
   return new Date(date).toLocaleString("en-US", {
     year: "numeric",
     month: "short",
@@ -104,16 +109,8 @@ const formatDate = (date) => {
   });
 };
 
-const editTodo = (todo) => {
-  // Implement edit logic
-};
-
-const deleteTodo = (id) => {
-  todoStore.deleteTodo(id);
-};
-
-const completeTodo = (id) => {
-  todoStore.completeTodo(id);
+const formatStatus = (status: Task["status"]) => {
+  return status.toLowerCase().replace("_", " ");
 };
 </script>
 
