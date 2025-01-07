@@ -1,8 +1,11 @@
-// nuxt.config.ts
 export default defineNuxtConfig({
   modules: ["@nuxtjs/tailwindcss"],
   css: ["~/assets/css/tailwind.css"],
-
+  runtimeConfig: {
+    public: {
+      API_URL: process.env.NUXT_PUBLIC_API_URL,
+    },
+  },
   app: {
     head: {
       title: "Todo List",

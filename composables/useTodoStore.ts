@@ -1,4 +1,5 @@
 import { ref } from "vue";
+import axios from "axios";
 
 export interface Todo {
   id: string;
@@ -10,62 +11,65 @@ export interface Todo {
 }
 
 export const useTodoStore = () => {
-  const todos = ref<Todo[]>([
-    {
-      id: "1",
-      title: "Completar projeto TODO",
-      description: "Desenvolver uma aplicação de TODO list usando Nuxt.js",
-      createdAt: "2025-01-02T10:00:00",
-      completedAt: null,
-      status: "in-progress",
-    },
-    {
-      id: "2",
-      title: "Estudar Nuxt.js",
-      description: "Aprofundar conhecimentos em Nuxt 3",
-      createdAt: "2025-01-01T15:30:00",
-      completedAt: "2025-01-02T14:00:00",
-      status: "completed",
-    },
-    {
-      id: "3",
-      title: "Reunião de planejamento",
-      description: "Participar da reunião semanal de planejamento",
-      createdAt: "2025-01-03T09:00:00",
-      completedAt: null,
-      status: "pending",
-    },
-  ]);
+  const API_URL = useRuntimeConfig().public.API_URL;
+  const todos = ref<Todo[]>([]);
 
-  const addTodo = (todo: Omit<Todo, "id" | "createdAt">) => {
-    const newTodo = {
-      ...todo,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      completedAt: null,
-    };
-    todos.value.push(newTodo);
-  };
-
-  const updateTodo = (id: string, updates: Partial<Todo>) => {
-    const index = todos.value.findIndex((todo) => todo.id === id);
-    if (index !== -1) {
-      todos.value[index] = { ...todos.value[index], ...updates };
+  const fetchTodos = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/todos`);
+      todos.value = response.data;
+    } catch (error) {
+      console.error("Erro ao buscar todos:", error);
     }
   };
 
-  const deleteTodo = (id: string) => {
-    todos.value = todos.value.filter((todo) => todo.id !== id);
-  };
-
-  const completeTodo = (id: string) => {
-    const todo = todos.value.find((todo) => todo.id === id);
-    if (todo && todo.status !== "completed") {
-      todo.status = "completed";
-      todo.completedAt = new Date().toISOString();
+  const addTodo = async (todo: Omit<Todo, "id" | "createdAt">) => {
+    try {
+      const response = await axios.post(`${API_URL}/todos`, {
+        ...todo,
+        createdAt: new Date().toISOString(),
+        completedAt: null,
+      });
+      todos.value.push(response.data);
+    } catch (error) {
+      console.error("Erro ao adicionar todo:", error);
     }
   };
 
+  const updateTodo = async (id: string, updates: Partial<Todo>) => {
+    try {
+      const response = await axios.put(`${API_URL}/todos/${id}`, updates);
+      const index = todos.value.findIndex((todo) => todo.id === id);
+      if (index !== -1) {
+        todos.value[index] = response.data;
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar todo:", error);
+    }
+  };
+
+  const deleteTodo = async (id: string) => {
+    try {
+      await axios.delete(`${API_URL}/todos/${id}`);
+      todos.value = todos.value.filter((todo) => todo.id !== id);
+    } catch (error) {
+      console.error("Erro ao deletar todo:", error);
+    }
+  };
+
+  const completeTodo = async (id: string) => {
+    try {
+      const updates = {
+        status: "completed" as const,
+        completedAt: new Date().toISOString(),
+      };
+      await updateTodo(id, updates);
+    } catch (error) {
+      console.error("Erro ao completar todo:", error);
+    }
+  };
+
+  // Mantendo as funções de filtro e ordenação no cliente
   const filterTodos = (
     status?: Todo["status"],
     startDate?: string,
@@ -94,8 +98,12 @@ export const useTodoStore = () => {
     return sorted;
   };
 
+  // Carregar todos inicialmente
+  fetchTodos();
+
   return {
     todos,
+    fetchTodos,
     addTodo,
     updateTodo,
     deleteTodo,

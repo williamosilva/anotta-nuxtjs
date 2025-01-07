@@ -84,6 +84,16 @@ const todoStore = useTodoStore();
 const isModalOpen = ref(false);
 const selectedTodo = ref(null);
 
+import { onMounted } from "vue";
+
+const { todos, fetchTodos } = useTodoStore();
+
+onMounted(() => {
+  fetchTodos();
+});
+
+console.log("aaaaa", todos.value);
+
 const completedTasksCount = computed(() => {
   return todoStore.todos.value.filter((todo) => todo.status === "completed")
     .length;
@@ -101,6 +111,7 @@ const closeModal = () => {
 
 const handleSubmit = (todoData: any) => {
   if (selectedTodo.value) {
+    // @ts-ignore
     todoStore.updateTodo(selectedTodo.value.id, todoData);
   } else {
     todoStore.addTodo(todoData);
