@@ -21,6 +21,10 @@ export const useHook = () => {
   const API_KEY = config.public.API_KEY;
   const tasks = ref<Task[]>([]);
   const stats = ref<TaskStats | null>(null);
+  const isLoading = ref(false);
+  const isCreating = ref(false);
+  const isUpdating = ref(false);
+  const isDeleting = ref(false);
 
   const axiosConfig = {
     headers: {
@@ -30,6 +34,7 @@ export const useHook = () => {
   };
 
   const fetchTasks = async () => {
+    isLoading.value = true;
     try {
       const response = await axios.get(`${API_URL}/tasks`, axiosConfig);
       tasks.value = response.data;
@@ -40,10 +45,13 @@ export const useHook = () => {
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
       throw error;
+    } finally {
+      isLoading.value = false;
     }
   };
 
   const createTask = async (title: string, description: string) => {
+    isCreating.value = true;
     try {
       const response = await axios.post(
         `${API_URL}/tasks`,
@@ -55,6 +63,8 @@ export const useHook = () => {
     } catch (error) {
       console.error("Erro ao criar tarefa:", error);
       throw error;
+    } finally {
+      isCreating.value = false;
     }
   };
 
@@ -62,6 +72,7 @@ export const useHook = () => {
     id: string,
     updates: { title?: string; description?: string; status?: Task["status"] }
   ) => {
+    isUpdating.value = true;
     try {
       const response = await axios.put(
         `${API_URL}/tasks/${id}`,
@@ -76,10 +87,13 @@ export const useHook = () => {
     } catch (error) {
       console.error("Erro ao atualizar tarefa:", error);
       throw error;
+    } finally {
+      isUpdating.value = false;
     }
   };
 
   const deleteTask = async (id: string) => {
+    isDeleting.value = true;
     try {
       await axios.delete(`${API_URL}/tasks/${id}`, axiosConfig);
       tasks.value = tasks.value.filter((task) => task.id !== id);
@@ -87,6 +101,8 @@ export const useHook = () => {
     } catch (error) {
       console.error("Erro ao deletar tarefa:", error);
       throw error;
+    } finally {
+      isDeleting.value = false;
     }
   };
 
@@ -128,6 +144,10 @@ export const useHook = () => {
   return {
     tasks,
     stats,
+    isLoading,
+    isCreating,
+    isUpdating,
+    isDeleting,
     fetchTasks,
     createTask,
     updateTask,

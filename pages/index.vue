@@ -6,8 +6,9 @@
         <button
           @click="openModal()"
           class="bg-blue-600 text-white rounded-full py-2 px-6 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-md"
+          :disabled="isCreating"
         >
-          New Task
+          {{ isCreating ? "Creating..." : "New Task" }}
         </button>
       </div>
 
@@ -54,12 +55,6 @@
                 <DialogPanel
                   class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all"
                 >
-                  <!-- <DialogTitle
-                    as="h3"
-                    class="text-lg font-medium leading-6 text-gray-900 mb-4"
-                  >
-                    {{ selectedTask ? "Edit Task" : "New Task" }}
-                  </DialogTitle> -->
                   <TodoForm
                     :initial-data="selectedTask"
                     :is-editing="!!selectedTask"
@@ -74,6 +69,7 @@
       </TransitionRoot>
     </div>
   </div>
+  <LoadingSpinner v-if="isLoading" />
 </template>
 
 <script setup lang="ts">
@@ -86,12 +82,16 @@ import {
   TransitionRoot,
   TransitionChild,
 } from "@headlessui/vue";
-
+import LoadingSpinner from "~/components/LoadingSpinner.vue";
 import { useHook } from "~/composables/useHook";
 
 const {
   tasks,
   stats,
+  isLoading,
+  isCreating,
+  isUpdating,
+  isDeleting,
   fetchTasks,
   fetchTaskStats,
   createTask,
