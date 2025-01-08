@@ -3,7 +3,7 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-center space-x-6">
         <a
-          href="https://github.com/WilliamSilvaOliveiraa"
+          href="https://github.com/williamosilva"
           target="_blank"
           rel="noopener noreferrer"
           class="text-gray-600 hover:text-gray-900 transition-colors duration-300"
