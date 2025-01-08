@@ -64,21 +64,22 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import type { Task } from "~/composables/useTodoStore";
+import type { Task } from "~/composables/useHook";
 
 interface Props {
-  todo: Task | null;
+  initialData: Task | null;
+  isEditing: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  todo: null,
+  initialData: null,
+  isEditing: false,
 });
 
 const emit = defineEmits<{
   (e: "submit", data: Partial<Task>): void;
+  (e: "cancel"): void;
 }>();
-
-const isEditing = computed(() => !!props.todo);
 
 const form = ref({
   title: "",
@@ -86,15 +87,15 @@ const form = ref({
   status: "PENDING" as Task["status"],
 });
 
-// Atualiza o formulário quando a prop todo mudar
+// Update the form when initialData changes
 watch(
-  () => props.todo,
-  (newTodo) => {
-    if (newTodo) {
+  () => props.initialData,
+  (newData) => {
+    if (newData) {
       form.value = {
-        title: newTodo.title,
-        description: newTodo.description,
-        status: newTodo.status,
+        title: newData.title,
+        description: newData.description,
+        status: newData.status,
       };
     } else {
       form.value = {
@@ -108,7 +109,7 @@ watch(
 );
 
 const handleSubmit = () => {
-  const submitData = isEditing.value
+  const submitData = props.isEditing
     ? {
         title: form.value.title,
         description: form.value.description,
@@ -121,7 +122,7 @@ const handleSubmit = () => {
 
   emit("submit", submitData);
 
-  if (!isEditing.value) {
+  if (!props.isEditing) {
     form.value = {
       title: "",
       description: "",

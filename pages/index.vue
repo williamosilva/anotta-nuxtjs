@@ -2,7 +2,7 @@
   <div class="bg-gradient-to-br from-gray-50 to-gray-100">
     <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Todo-List In NuxtJs</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Anotta</h1>
         <button
           @click="openModal()"
           class="bg-blue-600 text-white rounded-full py-2 px-6 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-md"
@@ -12,10 +12,7 @@
       </div>
 
       <div class="mb-8">
-        <ProgressBadge
-          :total-tasks="stats?.total || 0"
-          :completed-tasks="stats?.completed || 0"
-        />
+        <ProgressBadge :tasks="tasks" />
       </div>
 
       <TodoList
@@ -55,16 +52,17 @@
                 leave-to="opacity-0 scale-95"
               >
                 <DialogPanel
-                  class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+                  class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all"
                 >
-                  <DialogTitle
+                  <!-- <DialogTitle
                     as="h3"
                     class="text-lg font-medium leading-6 text-gray-900 mb-4"
                   >
                     {{ selectedTask ? "Edit Task" : "New Task" }}
-                  </DialogTitle>
+                  </DialogTitle> -->
                   <TodoForm
                     :initial-data="selectedTask"
+                    :is-editing="!!selectedTask"
                     @submit="handleSubmit"
                     @cancel="closeModal"
                   />
@@ -79,7 +77,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
+import type { Task } from "~/composables/useHook";
 import {
   Dialog,
   DialogPanel,
@@ -88,7 +87,7 @@ import {
   TransitionChild,
 } from "@headlessui/vue";
 
-import { useTodoStore } from "~/composables/useTodoStore";
+import { useHook } from "~/composables/useHook";
 
 const {
   tasks,
@@ -98,19 +97,25 @@ const {
   createTask,
   updateTask,
   deleteTask,
-} = useTodoStore();
+} = useHook();
 
 const isModalOpen = ref(false);
 const selectedTask = ref<Task | null>(null);
 
-// Inicialização
 onMounted(async () => {
   try {
     await Promise.all([fetchTasks(), fetchTaskStats()]);
   } catch (error) {
     console.error("Error initializing data:", error);
-    // Aqui você pode adicionar uma notificação de erro se desejar
   }
+});
+
+onMounted(() => {
+  console.log("Tasks after fetch:", tasks.value);
+});
+
+watch(tasks, (newTasks) => {
+  console.log("Tasks updated:", newTasks);
 });
 
 // Handlers
@@ -140,18 +145,18 @@ const handleSubmit = async (taskData: Partial<Task>) => {
 const handleDelete = async (taskId: string) => {
   try {
     await deleteTask(taskId);
+    await fetchTaskStats();
   } catch (error) {
     console.error("Error deleting task:", error);
-    // Aqui você pode adicionar uma notificação de erro se desejar
   }
 };
 
-const handleStatusUpdate = async (taskId: string, status: Task["status"]) => {
+const handleStatusUpdate = async (task: Task) => {
   try {
-    await updateTask(taskId, { status });
+    await updateTask(task.id, task);
+    await fetchTaskStats();
   } catch (error) {
     console.error("Error updating task status:", error);
-    // Aqui você pode adicionar uma notificação de erro se desejar
   }
 };
 </script>

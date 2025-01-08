@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import axios from "axios";
 
 export interface Task {
@@ -15,7 +15,7 @@ export interface TaskStats {
   formatted: string;
 }
 
-export const useTodoStore = () => {
+export const useHook = () => {
   const config = useRuntimeConfig();
   const API_URL = config.public.API_URL;
   const API_KEY = config.public.API_KEY;
@@ -29,18 +29,20 @@ export const useTodoStore = () => {
     },
   };
 
-  // Matches getAllTasks in backend
   const fetchTasks = async () => {
     try {
       const response = await axios.get(`${API_URL}/tasks`, axiosConfig);
       tasks.value = response.data;
+      console.log(
+        "Tarefas carregadas:",
+        JSON.parse(JSON.stringify(tasks.value))
+      );
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
       throw error;
     }
   };
 
-  // Matches createTask in backend
   const createTask = async (title: string, description: string) => {
     try {
       const response = await axios.post(
@@ -49,14 +51,13 @@ export const useTodoStore = () => {
         axiosConfig
       );
       tasks.value.unshift(response.data);
-      await fetchTaskStats(); // Update stats after creating
+      await fetchTaskStats();
     } catch (error) {
       console.error("Erro ao criar tarefa:", error);
       throw error;
     }
   };
 
-  // Matches updateTask in backend
   const updateTask = async (
     id: string,
     updates: { title?: string; description?: string; status?: Task["status"] }
@@ -71,26 +72,24 @@ export const useTodoStore = () => {
       if (index !== -1) {
         tasks.value[index] = response.data;
       }
-      await fetchTaskStats(); // Update stats after status change
+      await fetchTaskStats();
     } catch (error) {
       console.error("Erro ao atualizar tarefa:", error);
       throw error;
     }
   };
 
-  // Matches deleteTask in backend
   const deleteTask = async (id: string) => {
     try {
       await axios.delete(`${API_URL}/tasks/${id}`, axiosConfig);
       tasks.value = tasks.value.filter((task) => task.id !== id);
-      await fetchTaskStats(); // Update stats after deletion
+      await fetchTaskStats();
     } catch (error) {
       console.error("Erro ao deletar tarefa:", error);
       throw error;
     }
   };
 
-  // Matches getTaskStats in backend
   const fetchTaskStats = async () => {
     try {
       const response = await axios.get(`${API_URL}/tasks/stats`, axiosConfig);
@@ -101,7 +100,6 @@ export const useTodoStore = () => {
     }
   };
 
-  // Utility functions for frontend
   const filterTasks = (status?: Task["status"]) => {
     return tasks.value.filter((task) => !status || task.status === status);
   };
@@ -118,6 +116,14 @@ export const useTodoStore = () => {
     }
     return sorted;
   };
+
+  watch(
+    tasks,
+    async () => {
+      await fetchTaskStats();
+    },
+    { deep: true }
+  );
 
   return {
     tasks,
