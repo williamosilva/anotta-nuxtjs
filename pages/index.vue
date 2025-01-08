@@ -1,73 +1,78 @@
 <template>
-  <div class="bg-gradient-to-br from-gray-50 to-gray-100">
-    <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Anotta</h1>
-        <button
-          @click="openModal()"
-          class="bg-blue-600 text-white rounded-full py-2 px-6 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-md"
-          :disabled="isCreating"
-        >
-          {{ isCreating ? "Creating..." : "New Task" }}
-        </button>
-      </div>
-
-      <div class="mb-8">
-        <ProgressBadge :tasks="tasks" />
-      </div>
-
-      <TodoList
-        :tasks="tasks"
-        @edit-task="openModal"
-        @delete-task="handleDelete"
-        @update-status="handleStatusUpdate"
-      />
-
-      <TransitionRoot appear :show="isModalOpen" as="template">
-        <Dialog as="div" @close="closeModal" class="relative z-10">
-          <TransitionChild
-            as="template"
-            enter="duration-300 ease-out"
-            enter-from="opacity-0"
-            enter-to="opacity-100"
-            leave="duration-200 ease-in"
-            leave-from="opacity-100"
-            leave-to="opacity-0"
+  <div
+    class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex flex-col"
+  >
+    <div class="flex-grow">
+      <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-8">
+          <h1 class="text-3xl font-bold text-gray-900">Anotta</h1>
+          <button
+            @click="openModal()"
+            class="bg-blue-600 text-white rounded-full py-2 px-6 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-md"
+            :disabled="isCreating"
           >
-            <div
-              class="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm"
-            />
-          </TransitionChild>
+            {{ isCreating ? "Creating..." : "New Task" }}
+          </button>
+        </div>
 
-          <div class="fixed inset-0 overflow-y-auto">
-            <div
-              class="flex min-h-full items-center justify-center p-4 text-center"
+        <div class="mb-8">
+          <ProgressBadge :tasks="tasks" />
+        </div>
+
+        <TodoList
+          :tasks="tasks"
+          @edit-task="openModal"
+          @delete-task="handleDelete"
+          @update-status="handleStatusUpdate"
+        />
+
+        <TransitionRoot appear :show="isModalOpen" as="template">
+          <Dialog as="div" @close="closeModal" class="relative z-10">
+            <TransitionChild
+              as="template"
+              enter="duration-300 ease-out"
+              enter-from="opacity-0"
+              enter-to="opacity-100"
+              leave="duration-200 ease-in"
+              leave-from="opacity-100"
+              leave-to="opacity-0"
             >
-              <TransitionChild
-                as="template"
-                enter="duration-300 ease-out"
-                enter-from="opacity-0 scale-95"
-                enter-to="opacity-100 scale-100"
-                leave="duration-200 ease-in"
-                leave-from="opacity-100 scale-100"
-                leave-to="opacity-0 scale-95"
+              <div
+                class="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm"
+              />
+            </TransitionChild>
+
+            <div class="fixed inset-0 overflow-y-auto">
+              <div
+                class="flex min-h-full items-center justify-center p-4 text-center"
               >
-                <DialogPanel
-                  class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all"
+                <TransitionChild
+                  as="template"
+                  enter="duration-300 ease-out"
+                  enter-from="opacity-0 scale-95"
+                  enter-to="opacity-100 scale-100"
+                  leave="duration-200 ease-in"
+                  leave-from="opacity-100 scale-100"
+                  leave-to="opacity-0 scale-95"
                 >
-                  <TodoForm
-                    :initial-data="selectedTask"
-                    :is-editing="!!selectedTask"
-                    @submit="handleSubmit"
-                    @cancel="closeModal"
-                  />
-                </DialogPanel>
-              </TransitionChild>
+                  <DialogPanel
+                    class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all"
+                  >
+                    <TodoForm
+                      :initial-data="selectedTask"
+                      :is-editing="!!selectedTask"
+                      @submit="handleSubmit"
+                      @cancel="closeModal"
+                    />
+                  </DialogPanel>
+                </TransitionChild>
+              </div>
             </div>
-          </div>
-        </Dialog>
-      </TransitionRoot>
+          </Dialog>
+        </TransitionRoot>
+      </div>
     </div>
+    <Footer />
   </div>
   <LoadingSpinner v-if="isLoading" />
 </template>
@@ -83,6 +88,7 @@ import {
   TransitionChild,
 } from "@headlessui/vue";
 import LoadingSpinner from "~/components/LoadingSpinner.vue";
+import Footer from "~/components/Footer.vue";
 import { useHook } from "~/composables/useHook";
 
 const {
