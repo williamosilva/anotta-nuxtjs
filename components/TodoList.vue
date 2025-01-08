@@ -37,7 +37,9 @@
           class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300"
         >
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-semibold text-gray-800">
+            <h3
+              class="text-xl font-semibold text-gray-800 truncate max-w-[70%]"
+            >
               {{ task.title }}
             </h3>
             <div class="flex gap-2">
@@ -63,7 +65,9 @@
             </div>
           </div>
 
-          <p class="text-gray-600 mb-4">{{ task.description }}</p>
+          <p class="text-gray-600 mb-4 truncate overflow-hidden">
+            {{ task.description }}
+          </p>
 
           <div class="flex items-center justify-between text-sm text-gray-500">
             <div>
