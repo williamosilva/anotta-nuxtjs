@@ -5,23 +5,61 @@
     <h1 class="text-4xl font-bold mb-8 text-gray-800">My Tasks</h1>
 
     <div class="flex gap-4 mb-8">
-      <select
-        v-model="statusFilter"
-        class="bg-white border-none rounded-full px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
-      >
-        <option value="">All statuses</option>
-        <option value="PENDING">Pending</option>
-        <option value="IN_PROGRESS">In Progress</option>
-        <option value="COMPLETED">Completed</option>
-      </select>
+      <div class="relative inline-block">
+        <select
+          v-model="statusFilter"
+          class="appearance-none bg-white border-none rounded-full px-4 py-2 pr-10 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+        >
+          <option value="">All statuses</option>
+          <option value="PENDING">Pending</option>
+          <option value="IN_PROGRESS">In Progress</option>
+          <option value="COMPLETED">Completed</option>
+        </select>
+        <div
+          class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4"
+        >
+          <svg
+            class="h-4 w-4 text-gray-700"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </div>
+      </div>
 
-      <select
-        v-model="sortBy"
-        class="bg-white border-none rounded-full px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
-      >
-        <option value="date">Sort by Date</option>
-        <option value="title">Sort by Title</option>
-      </select>
+      <div class="relative inline-block">
+        <select
+          v-model="sortBy"
+          class="appearance-none bg-white border-none rounded-full px-4 py-2 pr-10 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+        >
+          <option value="date">Sort by Date</option>
+          <option value="title">Sort by Title</option>
+        </select>
+        <div
+          class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4"
+        >
+          <svg
+            class="h-4 w-4 text-gray-700"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </div>
+      </div>
     </div>
 
     <div class="h-[calc(80vh-300px)] overflow-y-auto pr-4 -mr-4">
@@ -147,6 +185,17 @@ const sortedAndFilteredTasks = computed(() => {
     }
   });
 });
+
+const isStatusOpen = ref(false);
+const isSortOpen = ref(false);
+
+const handleFocus = (type, value) => {
+  if (type === "status") {
+    isStatusOpen.value = value;
+  } else if (type === "sort") {
+    isSortOpen.value = value;
+  }
+};
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleString("en-US", {
