@@ -1,75 +1,168 @@
-# Nuxt Minimal Starter
+# Anotta Frontend - Aplicação Nuxt.js/Vue.js
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Frontend da aplicação Anotta desenvolvido com Nuxt.js e Vue.js, oferecendo uma interface moderna e responsiva para gerenciamento de tarefas.
 
-## Setup
+## Tecnologias Utilizadas
 
-Make sure to install dependencies:
+- Nuxt.js 3
+- Vue.js 3 (Composition API)
+- TypeScript
+- Tailwind CSS
+- Headless UI
+- Composables para gerenciamento de estado
 
+## Funcionalidades do Frontend
+
+- Interface responsiva e moderna
+- Modal para criação e edição de tarefas
+- Indicador de progresso das tarefas
+- Animações suaves nas transições
+- Loading states para feedback visual
+- Lista de tarefas com opções de edição e exclusão
+- Atualização em tempo real do status das tarefas
+
+## Pré-requisitos
+
+- Node.js (versão LTS recomendada)
+- NPM ou Yarn
+- Backend Anotta rodando (API)
+
+## Instalação
+
+1. Clone o repositório:
 ```bash
-# npm
+git clone <url-do-repositorio>](https://github.com/williamosilva/nuxt-todo-list)
+cd anotta-frontend
+```
+
+2. Instale as dependências:
+```bash
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
+# ou
 yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
+3. Configure as variáveis de ambiente:
+Crie um arquivo `.env`:
+```
+NUXT_PUBLIC_API_URL=http://localhost:3000
+NUXT_PUBLIC_API_KEY=sua-chave-api
+```
 
-Start the development server on `http://localhost:3000`:
-
+4. Inicie o servidor de desenvolvimento:
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
+# ou
 yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+## Estrutura de Arquivos
 
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+```
+├── components/
+│   ├── LoadingSpinner.vue
+│   ├── Footer.vue
+│   ├── ProgressBadge.vue
+│   ├── TodoList.vue
+│   └── TodoForm.vue
+├── composables/
+│   └── useHook.ts
+├── types/
+│   └── index.ts
+├── pages/
+│   └── index.vue
+├── app.vue
+└── nuxt.config.ts
 ```
 
-Locally preview production build:
+## Componentes Principais
 
-```bash
-# npm
-npm run preview
+### TodoList
+Componente responsável pela exibição da lista de tarefas com opções de:
+- Visualização de todas as tarefas
+- Edição de tarefas existentes
+- Exclusão de tarefas
+- Atualização de status
 
-# pnpm
-pnpm preview
+### TodoForm
+Formulário utilizado tanto para criação quanto edição de tarefas, incluindo:
+- Campos para título e descrição
+- Validação de campos
+- Estados de loading
+- Feedback visual de erros
 
-# yarn
-yarn preview
+### ProgressBadge
+Exibe o progresso geral das tarefas, mostrando:
+- Total de tarefas
+- Tarefas pendentes
+- Tarefas em progresso
+- Tarefas concluídas
 
-# bun
-bun run preview
+## Composables
+
+### useHook
+Gerencia toda a lógica de estado e interações com a API:
+
+```typescript
+const {
+  tasks,
+  stats,
+  isLoading,
+  isCreating,
+  isUpdating,
+  isDeleting,
+  fetchTasks,
+  fetchTaskStats,
+  createTask,
+  updateTask,
+  deleteTask,
+} = useHook();
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Estilos
+
+O projeto utiliza Tailwind CSS para estilização, com:
+- Gradientes personalizados
+- Sistema de cores consistente
+- Componentes responsivos
+- Animações e transições
+- Temas claros e escuros
+
+## Exemplos de Uso
+
+### Criação de Nova Tarefa
+```typescript
+const handleSubmit = async (taskData: Partial<Task>) => {
+  try {
+    await createTask(taskData.title!, taskData.description!);
+    // Atualiza a lista de tarefas
+    await fetchTasks();
+  } catch (error) {
+    console.error("Erro ao criar tarefa:", error);
+  }
+};
+```
+
+### Atualização de Status
+```typescript
+const handleStatusUpdate = async (task: Task) => {
+  try {
+    await updateTask(task.id, task);
+    await fetchTaskStats();
+  } catch (error) {
+    console.error("Erro ao atualizar status:", error);
+  }
+};
+```
+
+## Performance e Otimizações
+
+- Componentes lazy-loaded
+- Caching de requisições
+- Debouncing em operações frequentes
+- Otimização de re-renders
+- Prefetch de dados críticos
+
+## Licença
+
+[MIT License](LICENSE)
