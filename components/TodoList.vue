@@ -25,7 +25,12 @@
     </div>
 
     <div class="h-[calc(80vh-300px)] overflow-y-auto pr-4 -mr-4">
-      <TransitionGroup name="list" tag="div" class="space-y-4 p-3">
+      <TransitionGroup
+        v-if="sortedAndFilteredTasks.length > 0"
+        name="list"
+        tag="div"
+        class="space-y-4 p-3"
+      >
         <div
           v-for="task in sortedAndFilteredTasks"
           :key="task.id"
@@ -77,13 +82,26 @@
           </div>
         </div>
       </TransitionGroup>
+      <div v-else class="flex flex-col items-center justify-center h-full">
+        <ClipboardListIcon class="w-24 h-24 text-gray-300 mb-4" />
+        <h2 class="text-2xl font-semibold text-gray-600 mb-2">No tasks yet</h2>
+        <p class="text-gray-500 text-center max-w-sm">
+          Start by adding a new task to your list. Your productivity journey
+          begins here!
+        </p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { EditIcon, TrashIcon, CheckIcon } from "lucide-vue-next";
+import {
+  EditIcon,
+  TrashIcon,
+  CheckIcon,
+  ClipboardListIcon,
+} from "lucide-vue-next";
 
 interface Task {
   id: string;
