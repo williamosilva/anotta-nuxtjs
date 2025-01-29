@@ -1,63 +1,57 @@
-# Anotta Frontend - Aplicação Nuxt.js/Vue.js
+# Anotta Frontend - Nuxt.js/Vue.js Application
+A frontend application for Anotta built with Nuxt.js and Vue.js, providing a modern and responsive interface for task management.
 
-Frontend da aplicação Anotta desenvolvido com Nuxt.js e Vue.js, oferecendo uma interface moderna e responsiva para gerenciamento de tarefas.
-
-## Tecnologias Utilizadas
-
+## Technologies Used
 - Nuxt.js 3
 - Vue.js 3 (Composition API)
 - TypeScript
 - Tailwind CSS
 - Headless UI
-- Composables para gerenciamento de estado
+- Composables for state management
 
-## Funcionalidades do Frontend
+## Frontend Features
+- Responsive and modern interface
+- Modal for task creation and editing
+- Task progress indicator
+- Smooth transitions and animations
+- Loading states for visual feedback
+- Task list with edit and delete options
+- Real-time task status updates
 
-- Interface responsiva e moderna
-- Modal para criação e edição de tarefas
-- Indicador de progresso das tarefas
-- Animações suaves nas transições
-- Loading states para feedback visual
-- Lista de tarefas com opções de edição e exclusão
-- Atualização em tempo real do status das tarefas
+## Prerequisites
+- Node.js (LTS version recommended)
+- NPM or Yarn
+- Anotta Backend running (API)
 
-## Pré-requisitos
-
-- Node.js (versão LTS recomendada)
-- NPM ou Yarn
-- Backend Anotta rodando (API)
-
-## Instalação
-
-1. Clone o repositório:
+## Installation
+1. Clone the repository:
 ```bash
-git clone <url-do-repositorio>](https://github.com/williamosilva/nuxt-todo-list)
+git clone https://github.com/williamosilva/nuxt-todo-list
 cd anotta-frontend
 ```
 
-2. Instale as dependências:
+2. Install dependencies:
 ```bash
 npm install
-# ou
+# or
 yarn install
 ```
 
-3. Configure as variáveis de ambiente:
-Crie um arquivo `.env`:
+3. Configure environment variables:
+Create a `.env` file:
 ```
 NUXT_PUBLIC_API_URL=http://localhost:3000
-NUXT_PUBLIC_API_KEY=sua-chave-api
+NUXT_PUBLIC_API_KEY=your-api-key
 ```
 
-4. Inicie o servidor de desenvolvimento:
+4. Start the development server:
 ```bash
 npm run dev
-# ou
+# or
 yarn dev
 ```
 
-## Estrutura de Arquivos
-
+## File Structure
 ```
 ├── components/
 │   ├── LoadingSpinner.vue
@@ -75,34 +69,31 @@ yarn dev
 └── nuxt.config.ts
 ```
 
-## Componentes Principais
-
+## Main Components
 ### TodoList
-Componente responsável pela exibição da lista de tarefas com opções de:
-- Visualização de todas as tarefas
-- Edição de tarefas existentes
-- Exclusão de tarefas
-- Atualização de status
+Component responsible for displaying the task list with options for:
+- Viewing all tasks
+- Editing existing tasks
+- Deleting tasks
+- Status updates
 
 ### TodoForm
-Formulário utilizado tanto para criação quanto edição de tarefas, incluindo:
-- Campos para título e descrição
-- Validação de campos
-- Estados de loading
-- Feedback visual de erros
+Form used for both creating and editing tasks, including:
+- Title and description fields
+- Field validation
+- Loading states
+- Visual error feedback
 
 ### ProgressBadge
-Exibe o progresso geral das tarefas, mostrando:
-- Total de tarefas
-- Tarefas pendentes
-- Tarefas em progresso
-- Tarefas concluídas
+Displays overall task progress, showing:
+- Total tasks
+- Pending tasks
+- Tasks in progress
+- Completed tasks
 
 ## Composables
-
 ### useHook
-Gerencia toda a lógica de estado e interações com a API:
-
+Manages all state logic and API interactions:
 ```typescript
 const {
   tasks,
@@ -119,50 +110,46 @@ const {
 } = useHook();
 ```
 
-## Estilos
+## Styles
+The project uses Tailwind CSS for styling, with:
+- Custom gradients
+- Consistent color system
+- Responsive components
+- Animations and transitions
+- Light and dark themes
 
-O projeto utiliza Tailwind CSS para estilização, com:
-- Gradientes personalizados
-- Sistema de cores consistente
-- Componentes responsivos
-- Animações e transições
-- Temas claros e escuros
-
-## Exemplos de Uso
-
-### Criação de Nova Tarefa
+## Usage Examples
+### Creating a New Task
 ```typescript
 const handleSubmit = async (taskData: Partial<Task>) => {
   try {
     await createTask(taskData.title!, taskData.description!);
-    // Atualiza a lista de tarefas
+    // Update task list
     await fetchTasks();
   } catch (error) {
-    console.error("Erro ao criar tarefa:", error);
+    console.error("Error creating task:", error);
   }
 };
 ```
 
-### Atualização de Status
+### Status Update
 ```typescript
 const handleStatusUpdate = async (task: Task) => {
   try {
     await updateTask(task.id, task);
     await fetchTaskStats();
   } catch (error) {
-    console.error("Erro ao atualizar status:", error);
+    console.error("Error updating status:", error);
   }
 };
 ```
 
-## Performance e Otimizações
+## Performance and Optimizations
+- Lazy-loaded components
+- Request caching
+- Debouncing on frequent operations
+- Re-render optimization
+- Critical data prefetching
 
-- Componentes lazy-loaded
-- Caching de requisições
-- Debouncing em operações frequentes
-- Otimização de re-renders
-- Prefetch de dados críticos
-
-## Licença
-
+## License
 [MIT License](LICENSE)
